@@ -6,6 +6,12 @@ verify_ssl = true
 [dev-packages]
 black = "*"
 pydocstyle = "*"
+jupyter = "*"
+jupyterlab = "*"
+ipykernel = "*"
+vtk = "*"
+pyvista = "*"
+pyqt5 = "*"
 
 [packages]
 zipp = {editable = true, path = "/Users/adam2392/Documents/eztrack"}

@@ -1,26 +1,22 @@
 from pathlib import Path
-
+import pandas as pd
 from eztrack import (
     preprocess_raw,
     lds_raw_fragility,
     write_result_fragility,
     plot_result_heatmap,
+    read_result_eztrack
 )
 from mne_bids import read_raw_bids, BIDSPath, get_entity_vals
 
 
-def run_analysis(
+def run_viz(
         bids_path, reference="monopolar", resample_sfreq=None, deriv_path=None, figures_path=None, verbose=True, overwrite=False
 ):
     subject = bids_path.subject
 
     # use the same basename to save the data
     deriv_basename = bids_path.basename
-
-    # if len(list(deriv_path.rglob(f'{deriv_basename}*'))) > 0 and not overwrite:
-    #     warn('Need to set overwrite to True if you want '
-    #          f'to overwrite {deriv_basename}')
-    #     return
 
     # load in the data
     raw = read_raw_bids(bids_path)
@@ -33,93 +29,52 @@ def run_analysis(
         deriv_path = (
                 bids_path.root
                 / "derivatives"
-                # / 'nodepth'
-                / f"{int(raw.info['sfreq'])}Hz"
-                / "fragility"
-                / reference
-                / f"sub-{subject}"
         )
+    deriv_path = (deriv_path
+                  # /  'nodepth'
+                  / f"{int(raw.info['sfreq'])}Hz"
+                  / "fragility"
+                  / reference
+                  / f"sub-{subject}")
     # set where to save the data output to
     if figures_path is None:
         figures_path = (
                 bids_path.root
                 / "derivatives"
                 / "figures"
-                # / 'nodepth'
-                / f"{int(raw.info['sfreq'])}Hz"
-                / "fragility"
-                / reference
-                / f"sub-{subject}"
         )
-    deriv_root = (root / 'derivatives' / "figures"
-                  # / 'nodepth' \
-                 / f"{int(raw.info['sfreq'])}Hz" \
-                 / "raw" \
-                 / reference \
-                 / f"sub-{subject}")
-
-    raw = raw.pick_types(seeg=True, ecog=True,
-                         eeg=True, misc=False,
-                         exclude=[])
-    raw.load_data()
-
-    # pre-process the data using preprocess pipeline
-    datatype = bids_path.datatype
-    print('Power Line frequency is : ', raw.info["line_freq"])
-    raw = preprocess_raw(raw, datatype=datatype,
-                         verbose=verbose, method="simple", drop_chs=False)
-
-    # plot raw data
-    deriv_root.mkdir(exist_ok=True, parents=True)
-    fig_basename = bids_path.copy().update(extension='.pdf').basename
-    scale = 200e-6
-    fig = raw.plot(
-        decim=10,
-        scalings={
-            'ecog': scale,
-            'seeg': scale
-        }, n_channels=len(raw.ch_names))
-    fig.savefig(deriv_root / fig_basename)
-
-    raw.drop_channels(raw.info['bads'])
-
-    # print(raw.ch_names)
-    # print(raw.info['bads'])
-    print(f"Analyzing {raw} with {len(raw.ch_names)} channels.")
-
-    # raise Exception('hi')
-    model_params = {
-        "winsize": 500,
-        "stepsize": 250,
-        "radius": 1.5,
-        "method_to_use": "pinv",
-    }
-    # run heatmap
-    if reference == 'common':
-        reference = raw.ch_names
-    result, A_mats, delta_vecs_arr = lds_raw_fragility(
-        raw, reference=reference, return_all=True, **model_params
-    )
+    figures_path = (figures_path
+                    # / 'nodepth'
+                    / f"{int(raw.info['sfreq'])}Hz"
+                    / "fragility"
+                    / reference
+                    / f"sub-{subject}")
 
     # write results to
-    result_sidecars = write_result_fragility(
-        A_mats,
-        delta_vecs_arr,
-        result=result,
-        deriv_basename=deriv_basename,
-        deriv_path=deriv_path,
-        verbose=verbose,
-    )
+    source_entities = bids_path.entities
+    raw_basename = BIDSPath(**source_entities).basename
+    deriv_fname = list(deriv_path.glob(f'{raw_basename}*perturbmatrix*'))[0]
+    result = read_result_eztrack(deriv_fname=deriv_fname,
+                                 description='perturbmatrix',
+                                 normalize=True)
     fig_basename = deriv_basename
 
-    # normalize in place
-    result.normalize()
+    # read in sidecar channels.tsv
+    channels_pd = pd.read_csv(bids_path.copy().update(suffix='channels', extension='.tsv'), sep='\t')
+    description_chs = pd.Series(channels_pd.description.values, index=channels_pd.name).to_dict()
+    print(description_chs)
+    resected_chs = [ch for ch, description in description_chs.items() if description == 'resected']
+    print(f'Resected channels are {resected_chs}')
+    print(result.get_data()[:].min(), result.get_data()[:].max())
+    print(result.info['sfreq'], result.get_metadata().get('model_params'))
+    # channels_pd['description'].tolist()
 
     # create the heatmap
     plot_result_heatmap(
         result=result,
         fig_basename=fig_basename,
         figures_path=figures_path,
+        red_chs=resected_chs
     )
 
 
@@ -132,7 +87,7 @@ if __name__ == "__main__":
         "E1",
         # 'E2',
         # 'E3',
-        'E4',
+        # 'E4',
         # 'E5', 'E6'
     ]
 
@@ -148,7 +103,7 @@ if __name__ == "__main__":
     reference = 'common'
     sfreq = None
 
-    sessions = [
+    all_sessions = [
         'presurgery',
         'extraoperative',
         'intraoperative',
@@ -161,7 +116,7 @@ if __name__ == "__main__":
         if subject not in subjects:
             continue
         ignore_subs = [sub for sub in all_subjects if sub != subject]
-        ignore_sessions = [ses for ses in sessions if ses != session]
+        ignore_sessions = [ses for ses in all_sessions if ses != session]
         ignore_set = {
             'ignore_subjects': ignore_subs,
             'ignore_sessions': ignore_sessions,
@@ -197,5 +152,14 @@ if __name__ == "__main__":
                 )
                 print(f"Analyzing {bids_path}")
 
-                run_analysis(bids_path, reference=reference,
-                             resample_sfreq=sfreq)
+                deriv_path = (
+                        bids_path.root
+                        / "derivatives"
+                )
+                figures_path = (deriv_path
+                        / "figures"
+                        # / 'norms'
+                )
+                run_viz(bids_path, reference=reference,
+                        resample_sfreq=sfreq,
+                        deriv_path=deriv_path, figures_path=figures_path)

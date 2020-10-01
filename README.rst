@@ -43,82 +43,16 @@ Additional data components:
 Installation Guide
 ==================
 
-EZTrack is intended to be a lightweight wrapper for easily analyzing large batches of patients with EEG data.
-
-.. code-block::
-
-   numpy
-   scipy
-   scikit-learn
-   pandas
-   mne
-   mne-bids
-   pybv
-   pybids
-   joblib
-   matplotlib
-   seaborn
-   natsort
-   tqdm
-
-
 Setup environment from source
 
 .. code-block::
 
-   make inplace
-   # dev versions of mne-python, mne-bids
-   pip install --upgrade --no-deps https://api.github.com/repos/mne-tools/mne-python/zipball/master
-   pip install --upgrade https://api.github.com/repos/mne-tools/mne-bids/zipball/master
+   pipenv install --dev
+
+   pipenv install -e /Users/adam2392/Documents/eztrack
 
    pipenv install https://api.github.com/repos/mne-tools/mne-python/zipball/master
    pipenv install https://api.github.com/repos/mne-tools/mne-bids/zipball/master
-
-
-Setup environment directly via Pipenv recipe:
-
-Note that our repository currently depends a bit on MNE-Python and MNE-BIDS development versions, which isn't maintained in the 
-conda recipe file. 
-
-.. code-block::
-
-    pipenv install
-
-   conda env create -f ./environment.yml --name=eztrack
-   # dev versions of mne-python, mne-bids
-   pipenv install --upgrade --no-deps https://api.github.com/repos/mne-tools/mne-python/zipball/master
-   pipenv install --upgrade https://api.github.com/repos/mne-tools/mne-bids/zipball/master
-
-
-Install from Github
--------------------
-
-To install, run this command in your repo:
-
-.. code-block::
-
-   git clone https://github.com/adam2392/eztrack
-   python setup.py install
-
-
-or 
-
-.. code-block::
-
-   pip install https://api.github.com/repos/adam2392/eztrack/zipball/master
-
-
-Documentation
-=============
-
-.. code-block::
-
-   conda install sphinx sphinx-gallery sphinx_bootstrap_theme numpydoc sphinxcontrib-restbuilder
-   sphinx-quickstart
-   make build_doc
-
-    pipenv install ipykernel sphinx sphinx-gallery sphinx_bootstrap_theme numpydoc sphinxcontrib-restbuilder black pytest pytest-cov coverage codespell pydocstyle --dev
-
 
 Setup Jupyter Kernel To Test
 ============================
@@ -127,31 +61,6 @@ You need to install ipykernel to expose your conda environment to jupyter notebo
 
 .. code-block::
 
-   conda install ipykernel
-   python -m ipykernel install --name eztrack --user
+   pipenv run python -m ipykernel install --name sickkids --user
    # now you can run jupyter lab and select a kernel
-   jupyter lab 
-
-
-Testing
-=======
-
-Install testing and formatting libs:
-
-.. code-block::
-
-   conda install black pytest pytest-cov coverage codespell pydocstyle
-   pip install coverage-badge anybadge mypy
-
-
-Run tests
-
-.. code-block::
-
-   black eztrack/*
-   black tests/*
-   pylint ./eztrack/
-   anybadge --value=6.0 --file=pylint.svg pylint
-   pytest --cov-config=.coveragerc --cov=./eztrack/ tests/
-   pytest --cov-config=.coveragerc --cov=./eztrack/ tests/ > docs/tests/test_docs.txt
-   coverage-badge -f -o coverage.svg
+   jupyter lab
