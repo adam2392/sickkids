@@ -9,14 +9,25 @@ pydocstyle = "*"
 jupyter = "*"
 jupyterlab = "*"
 ipykernel = "*"
+mne-bids = {file = "https://api.github.com/repos/mne-tools/mne-bids/zipball/master"}
+
+[packages]
+mne-bids = {file = "https://api.github.com/repos/mne-tools/mne-bids/zipball/master"}
+mne = ">=0.21"
 vtk = "*"
 pyvista = "*"
 pyqt5 = "*"
-
-[packages]
-zipp = {editable = true, path = "/Users/adam2392/Documents/eztrack"}
-mne-bids = {file = "https://api.github.com/repos/mne-tools/mne-bids/zipball/master"}
-mne = {file = "https://api.github.com/repos/mne-tools/mne-python/zipball/master"}
+pydmd = "*"
+tvb-library = "*"
+mne-features = "*"
+ipympl = "*"
+dabest = "*"
+graspologic = "*"
+pingouin = "*"
+jedi = "==0.17.2"
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
