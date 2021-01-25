@@ -8,6 +8,8 @@ from eztrack.io.base import _add_desc_to_bids_fname, DERIVATIVETYPES
 from eztrack.preprocess import preprocess_ieeg
 from mne_bids import BIDSPath, get_entity_vals, read_raw_bids
 
+import sickkids.io
+
 
 def run_plot_raw(bids_path, resample_sfreq, figures_path, verbose=None):
     # load in the data
@@ -20,7 +22,7 @@ def run_plot_raw(bids_path, resample_sfreq, figures_path, verbose=None):
     raw = raw.pick_types(seeg=True, ecog=True,
                          eeg=True, misc=False,
                          exclude=[])
-    raw.load_data()
+    sickkids.io.load_data()
 
     # pre-process the data using preprocess pipeline
     print('Power Line frequency is : ', raw.info["line_freq"])

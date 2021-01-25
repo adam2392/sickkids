@@ -128,6 +128,14 @@ def setup_simulation(conn, ch_xyz, ezind=None, pzind=None,
         epileptors = Epileptor(
             variables_of_interest=variables_of_interest,
             Kvf=Kvf, Kf=Kf)
+
+    # integration noise
+    if noise_cov is None:
+        noise_cov = np.array([0.001, 0.001, 0.,
+                              0.0001, 0.0001, 0.])
+        if resting_state:
+            noise_cov = np.append(noise_cov, [0.0001, 0.])
+
     if r is not None:
         epileptors.r = r
     if Ks is not None:
@@ -156,10 +164,14 @@ def setup_simulation(conn, ch_xyz, ezind=None, pzind=None,
             warnings.warn(
                 "pz index not set yet! Do you want to proceed with simulation?")
 
+    if resting_state:
+        # set the coupling state between the epileptor and the resting state 2D oscillator
+        epileptors.p = np.ones(len(conn.region_labels)) * 0.2
+
+        epileptors.a_rs = np.ones(len(conn.region_labels)) * 1.7402
+
     ####################### 3. Integrator for Models ##########################
-    if noise_cov is None:
-        noise_cov = np.array([0.001, 0.001, 0.,
-                              0.0001, 0.0001, 0.])
+
     # define cov noise for the stochastic heun integrato
     hiss = noise.Additive(nsig=noise_cov)
     # hiss = noise.Multiplicative(nsig=noise_cov)
@@ -226,7 +238,7 @@ def setup_simulation(conn, ch_xyz, ezind=None, pzind=None,
     if gainfile is None:
         mon_SEEG = monitors.iEEG.from_file(period=period,
                                            obsnoise=obsnoise,
-                                           variables_of_interest=np.array([1]),
+                                           variables_of_interest=np.array([7, 8]),
                                            sensors_fname=str(seeg_fname),
                                            )
         # sensors_fname=self.seegfile,
@@ -238,7 +250,7 @@ def setup_simulation(conn, ch_xyz, ezind=None, pzind=None,
         mon_SEEG.gain = gainmat
     else:
         mon_SEEG = monitors.iEEG.from_file(period=period,
-                                           variables_of_interest=np.array([1]),
+                                           variables_of_interest=np.array([7, 8]),
                                            sensors_fname=str(seeg_fname),
                                            # sensors_fname=,
                                            # rm_f_name=regmapfile,
