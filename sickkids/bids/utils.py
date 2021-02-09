@@ -9,8 +9,7 @@ from mne_bids.path import _parse_ext, BIDSPath
 from mne_bids.tsv_handler import _from_tsv, _to_tsv
 from typing import Union, List, Dict
 
-MINIMAL_BIDS_ENTITIES = ('subject', 'session', 'task',
-                         'acquisition', 'run', 'datatype')
+MINIMAL_BIDS_ENTITIES = ("subject", "session", "task", "acquisition", "run", "datatype")
 
 
 def _update_electrodes_tsv(electrodes_tsv_fpath, elec_labels_anat, atlas_depth):
@@ -31,14 +30,19 @@ def _update_electrodes_tsv(electrodes_tsv_fpath, elec_labels_anat, atlas_depth):
 
 
 def get_resected_chs(subject, root):
-    bids_path = BIDSPath(subject=subject, root=root,
-                         suffix='channels', extension='.tsv')
+    bids_path = BIDSPath(
+        subject=subject, root=root, suffix="channels", extension=".tsv"
+    )
     ch_fpaths = bids_path.match()
 
     # read in sidecar channels.tsv
-    channels_pd = pd.read_csv(ch_fpaths[0], sep='\t')
-    description_chs = pd.Series(channels_pd.description.values, index=channels_pd.name).to_dict()
-    resected_chs = [ch for ch, description in description_chs.items() if description == 'resected']
+    channels_pd = pd.read_csv(ch_fpaths[0], sep="\t")
+    description_chs = pd.Series(
+        channels_pd.description.values, index=channels_pd.name
+    ).to_dict()
+    resected_chs = [
+        ch for ch, description in description_chs.items() if description == "resected"
+    ]
     return resected_chs
 
 
@@ -64,10 +68,10 @@ class ChannelMarkers(Enum):
 
 
 class BadChannelDescription(Enum):
-    FLAT = 'flat-signal',
-    HIGHFREQ = 'high-freq-noise'
-    REFERENCE = 'reference'
-    DISCONNECTED = 'disconnected-from-brain'
+    FLAT = ("flat-signal",)
+    HIGHFREQ = "high-freq-noise"
+    REFERENCE = "reference"
+    DISCONNECTED = "disconnected-from-brain"
 
 
 def _replace_ext(fname, ext, verbose=False):
@@ -82,12 +86,12 @@ def _replace_ext(fname, ext, verbose=False):
 
 
 def _update_sidecar_tsv_byname(
-        sidecar_fname: str,
-        name: Union[List, str],
-        colkey: str,
-        val: str,
-        allow_fail=False,
-        verbose=False,
+    sidecar_fname: str,
+    name: Union[List, str],
+    colkey: str,
+    val: str,
+    allow_fail=False,
+    verbose=False,
 ):
     """Update a sidecar JSON file with a given key/value pair.
 
@@ -140,9 +144,11 @@ def _update_sidecar_tsv_byname(
 
 def _check_bids_parameters(bids_kwargs: Dict) -> Dict:
     if not all([entity in bids_kwargs for entity in MINIMAL_BIDS_ENTITIES]):
-        raise RuntimeError(f'BIDS kwargs parameters are missing an entity. '
-                           f'All of {MINIMAL_BIDS_ENTITIES} need to be passed '
-                           f'in the dictionary input. You passed in {bids_kwargs}.')
+        raise RuntimeError(
+            f"BIDS kwargs parameters are missing an entity. "
+            f"All of {MINIMAL_BIDS_ENTITIES} need to be passed "
+            f"in the dictionary input. You passed in {bids_kwargs}."
+        )
 
     # construct the entities dictionary
     entities = {entity: bids_kwargs[entity] for entity in MINIMAL_BIDS_ENTITIES}
@@ -151,7 +157,7 @@ def _check_bids_parameters(bids_kwargs: Dict) -> Dict:
 
 
 def _look_for_bad_channels(
-        ch_names, bad_markers: List[str] = ChannelMarkers.BAD_MARKERS.name
+    ch_names, bad_markers: List[str] = ChannelMarkers.BAD_MARKERS.name
 ):
     """Looks for hardcoding of what are "bad ch_names".
 

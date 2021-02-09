@@ -45,5 +45,5 @@ def rescale_modes(snapshots, atilde, dmd):
 
     # compute DMD modes again
     modes = (Y.dot(V).dot(np.diag(np.reciprocal(s)))).dot(lowrank_eigenvectors)
-    modes = modes[:dmd._snapshots.shape[0], :]
+    modes = modes[: dmd._snapshots.shape[0], :]
     return modes

@@ -89,8 +89,8 @@ upload-pipy:
 black:
 	@if command -v black > /dev/null; then \
 		echo "Running black"; \
-		black --check analysis; \
-		black analysis/*; \
+		black --check sickkids; \
+		black sickkids/*; \
 	else \
 		echo "black not found, please install it!"; \
 		exit 1; \

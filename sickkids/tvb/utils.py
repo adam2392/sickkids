@@ -39,25 +39,31 @@ def read_surf(directory: str, use_subcort: bool):
 
     """
     # Shift to account for 0 - unknown region, not included later
-    reg_map_cort = np.genfromtxt(
-        (os.path.join(directory, "region_mapping_cort.txt")), dtype=int) - 1
-    reg_map_subc = np.genfromtxt(
-        (os.path.join(directory, "region_mapping_subcort.txt")), dtype=int) - 1
+    reg_map_cort = (
+        np.genfromtxt((os.path.join(directory, "region_mapping_cort.txt")), dtype=int)
+        - 1
+    )
+    reg_map_subc = (
+        np.genfromtxt(
+            (os.path.join(directory, "region_mapping_subcort.txt")), dtype=int
+        )
+        - 1
+    )
 
     with zipfile.ZipFile(os.path.join(directory, "surface_cort.zip")) as zip:
-        with zip.open('vertices.txt') as fhandle:
+        with zip.open("vertices.txt") as fhandle:
             verts_cort = np.genfromtxt(fhandle)
-        with zip.open('normals.txt') as fhandle:
+        with zip.open("normals.txt") as fhandle:
             normals_cort = np.genfromtxt(fhandle)
-        with zip.open('triangles.txt') as fhandle:
+        with zip.open("triangles.txt") as fhandle:
             triangles_cort = np.genfromtxt(fhandle, dtype=int)
 
     with zipfile.ZipFile(os.path.join(directory, "surface_subcort.zip")) as zip:
-        with zip.open('vertices.txt') as fhandle:
+        with zip.open("vertices.txt") as fhandle:
             verts_subc = np.genfromtxt(fhandle)
-        with zip.open('normals.txt') as fhandle:
+        with zip.open("normals.txt") as fhandle:
             normals_subc = np.genfromtxt(fhandle)
-        with zip.open('triangles.txt') as fhandle:
+        with zip.open("triangles.txt") as fhandle:
             triangles_subc = np.genfromtxt(fhandle, dtype=int)
 
     vert_areas_cort = compute_vertex_areas(verts_cort, triangles_cort)
@@ -90,5 +96,5 @@ def compute_vertex_areas(vertices, triangles):
     vertex_areas = np.zeros((vertices.shape[0]))
     for triang, vertices in enumerate(triangles):
         for i in range(3):
-            vertex_areas[vertices[i]] += 1. / 3. * triangle_areas[triang]
+            vertex_areas[vertices[i]] += 1.0 / 3.0 * triangle_areas[triang]
     return vertex_areas

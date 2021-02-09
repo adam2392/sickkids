@@ -6,7 +6,7 @@ from sklearn.utils import resample
 
 def compute_bootstrap_lr(dmd_modes, freqs, n_boot=500, random_state=None):
     # compute the modepower from the dmd modes
-    modepower = np.linalg.norm(dmd_modes, ord=2, axis=0)**2
+    modepower = np.linalg.norm(dmd_modes, ord=2, axis=0) ** 2
 
     # for anything on 0 frequencies, we will ignore
     zero_freq_inds = np.argwhere(np.abs(freqs) != 0)
@@ -24,9 +24,13 @@ def compute_bootstrap_lr(dmd_modes, freqs, n_boot=500, random_state=None):
 
     n_samples = freqs.size
     for iboot in range(n_boot):
-        X_sample, y_sample =resample(freqs, modepower, replace=True,
-                                               n_samples=n_samples,
-                                               random_state=random_state)
+        X_sample, y_sample = resample(
+            freqs,
+            modepower,
+            replace=True,
+            n_samples=n_samples,
+            random_state=random_state,
+        )
         # make sure frequencies are logged
         X_sample = np.log10(np.abs(X_sample))
         y_sample = np.log10(y_sample)
@@ -50,13 +54,14 @@ def _compute_dist_from_boot(intercepts, slopes, freq):
         predicted.append(pwr_predict)
     return predicted
 
+
 def compute_significant_freqs(dmd_modes, freqs, intercepts, slopes):
     # compute a 99% CI
     slope_mean = np.mean(slopes)
     int_mean = np.mean(intercepts)
 
     # compute the modepower from the dmd modes
-    modepower = np.linalg.norm(dmd_modes, ord=2, axis=0)**2
+    modepower = np.linalg.norm(dmd_modes, ord=2, axis=0) ** 2
 
     # for anything on 0 frequencies, we will ignore
     zero_freq_inds = np.argwhere(np.abs(freqs) != 0)

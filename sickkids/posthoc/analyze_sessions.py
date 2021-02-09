@@ -4,12 +4,13 @@ from mne_bids import get_entity_vals, BIDSPath
 
 from eztrack.io import read_derivative_npy
 
+
 def load_all_sessions(subject, sessions, deriv_root, deriv_chain):
-    deriv_path = deriv_root / deriv_chain / f'sub-{subject}'
+    deriv_path = deriv_root / deriv_chain / f"sub-{subject}"
 
     deriv_list = []
     for session in sessions:
-        pattern = f'*ses-{session}*_desc-perturbmatrix*.json'
+        pattern = f"*ses-{session}*_desc-perturbmatrix*.json"
 
         # get all files
         fpaths = list(deriv_path.glob(pattern))
@@ -23,9 +24,10 @@ def load_all_sessions(subject, sessions, deriv_root, deriv_chain):
 def show_evolution():
     pass
 
+
 def run_analysis():
     root = Path("/Users/adam2392/OneDrive - Johns Hopkins/sickkids/")
-    deriv_root = root / 'derivatives' / 'originalsampling' / 'radius1.5'
+    deriv_root = root / "derivatives" / "originalsampling" / "radius1.5"
     figures_path = deriv_root / "figures"
 
     # define BIDS entities
@@ -43,21 +45,15 @@ def run_analysis():
     session = "postresection"  # only one session
 
     # analysis parameters
-    reference = 'monopolar'
+    reference = "monopolar"
     sfreq = None
     overwrite = False
 
-    sessions = [
-        'extraoperative',
-        'preresection',
-        'intraresection',
-        'postresection'
-    ]
+    sessions = ["extraoperative", "preresection", "intraresection", "postresection"]
 
-    deriv_chain = Path('originalsampling') / 'radius1.5' / 'fragility' / reference
+    deriv_chain = Path("originalsampling") / "radius1.5" / "fragility" / reference
 
     for subject in SUBJECTS:
-        deriv_list = load_all_sessions(subject, sessions, deriv_root,
-                                       deriv_chain)
+        deriv_list = load_all_sessions(subject, sessions, deriv_root, deriv_chain)
 
         # concatenate

@@ -9,6 +9,7 @@ pydocstyle = "*"
 jupyter = "*"
 jupyterlab = "*"
 ipykernel = "*"
+codespell = "*"
 
 [packages]
 mne-bids = ">=0.6"
