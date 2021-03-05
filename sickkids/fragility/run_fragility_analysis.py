@@ -16,7 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 
 def run_row_analysis(
-    state_deriv_fpath, radius, deriv_path, plot_heatmap=True, figures_path=None
+    state_deriv_fpath,
+    radius,
+    deriv_path,
+    plot_heatmap=True,
+    figures_path=None,
+    overwrite=False,
 ):
     state_deriv = read_derivative_npy(state_deriv_fpath)
 
@@ -39,24 +44,24 @@ def run_row_analysis(
         pert_deriv.normalize()
         fig_basename = perturb_deriv_fpath.with_suffix(".pdf").name
 
-        bids_path.update(suffix="channels", extension=".tsv")
+        # bids_path.update(suffix="channels", extension=".tsv")
 
         # read in sidecar channels.tsv
-        channels_pd = pd.read_csv(bids_path.fpath, sep="\t")
-        description_chs = pd.Series(
-            channels_pd.description.values, index=channels_pd.name
-        ).to_dict()
-        print(description_chs)
-        resected_chs = [
-            ch
-            for ch, description in description_chs.items()
-            if description == "resected"
-        ]
-        print(f"Resected channels are {resected_chs}")
+        # channels_pd = pd.read_csv(bids_path.fpath, sep="\t")
+        # description_chs = pd.Series(
+        #     channels_pd.description.values, index=channels_pd.name
+        # ).to_dict()
+        # print(description_chs)
+        # resected_chs = [
+        #     ch
+        #     for ch, description in description_chs.items()
+        #     if description == "resected"
+        # ]
+        # print(f"Resected channels are {resected_chs}")
 
         print(f"saving figure to {figures_path} {fig_basename}")
         pert_deriv.plot_heatmap(
-            soz_chs=resected_chs,
+            # soz_chs=resected_chs,
             cbarlabel="Fragility",
             cmap="turbo",
             # soz_chs=soz_chs,
@@ -66,6 +71,10 @@ def run_row_analysis(
             title=fig_basename,
             figure_fpath=(figures_path / fig_basename),
         )
+
+
+def remove_artifact_epochs(raw):
+    event_name = "artefact"
 
 
 def run_analysis(
@@ -153,20 +162,20 @@ def run_analysis(
         perturb_deriv.normalize()
         fig_basename = perturb_deriv_fpath.with_suffix(".pdf").name
 
-        bids_path.update(suffix="channels", extension=".tsv")
+        bids_path.update(suffix="electrodes", extension=".tsv")
 
         # read in vertical markers
-        vertical_markers = {}
-        events, event_id = mne.events_from_annotations(perturb_deriv)
-        if "eeg sz onset" in event_id:
-            _id = event_id.get("eeg sz onset")
-            sz_onset = int(events[np.argwhere(events[:, -1] == _id), 0].squeeze())
-            print(sz_onset)
-            vertical_markers[sz_onset] = "seizure onset"
-        if "eeg sz offset" in event_id:
-            _id = event_id.get("eeg sz offset")
-            sz_offset = int(events[np.argwhere(events[:, -1] == _id), 0].squeeze())
-            vertical_markers[sz_offset] = "seizure offset"
+        # vertical_markers = {}
+        # events, event_id = mne.events_from_annotations(perturb_deriv)
+        # if "eeg sz onset" in event_id:
+        #     _id = event_id.get("eeg sz onset")
+        #     sz_onset = int(events[np.argwhere(events[:, -1] == _id), 0].squeeze())
+        #     print(sz_onset)
+        #     vertical_markers[sz_onset] = "seizure onset"
+        # if "eeg sz offset" in event_id:
+        #     _id = event_id.get("eeg sz offset")
+        #     sz_offset = int(events[np.argwhere(events[:, -1] == _id), 0].squeeze())
+        #     vertical_markers[sz_offset] = "seizure offset"
 
         # read in sidecar channels.tsv
         channels_pd = pd.read_csv(bids_path.fpath, sep="\t")
@@ -180,12 +189,13 @@ def run_analysis(
             if description == "resected"
         ]
         print(f"Resected channels are {resected_chs}")
+
         print(f"saving figure to {figures_path} {fig_basename}")
         perturb_deriv.plot_heatmap(
             soz_chs=resected_chs,
             cbarlabel="Fragility",
             cmap="turbo",
-            vertical_markers=vertical_markers,
+            # vertical_markers=vertical_markers,
             # soz_chs=soz_chs,
             # figsize=(10, 8),
             # fontsize=12,
@@ -201,10 +211,102 @@ def run_analysis(
         deriv_path,
         plot_heatmap=True,
         figures_path=figures_path,
+        overwrite=overwrite,
     )
 
 
+def run_utrecht():
+    root = Path("/Users/adam2392/OneDrive - Johns Hopkins/ds003400/")
+    deriv_root = root / "derivatives" / "1000Hz" / "radius1.25"
+    figures_path = deriv_root / "figures"
+
+    # define BIDS entities
+    SUBJECTS = [
+        "RESP0059",
+        "RESP0280",
+        "RESP0301",
+        "RESP0356",
+        "RESP0384",
+    ]
+
+    # pre, Sz, Extraoperative, post
+    # task = "pre"
+    # acquisition = "ecog"
+    # acquisition = 'seeg'
+    datatype = "ieeg"
+    extension = ".vhdr"
+
+    # analysis parameters
+    reference = "monopolar"
+    order = 1
+    sfreq = 1000
+    overwrite = True
+    SESSIONS = [
+        "SITUATION1A",
+        "SITUATION1B",
+        "SITUATION2A",
+        "SITUATION3A" "SITUATION4A",
+    ]
+
+    # get the runs for this subject
+    all_subjects = get_entity_vals(root, "subject")
+    for subject in all_subjects:
+        if subject not in SUBJECTS:
+            continue
+        ignore_subs = [sub for sub in all_subjects if sub != subject]
+
+        # get all sessionsF
+        sessions = get_entity_vals(root, "session", ignore_subjects=ignore_subs)
+        for session in sessions:
+            if session not in SESSIONS:
+                continue
+            ignore_sessions = [ses for ses in sessions if ses != session]
+            ignore_set = {
+                "ignore_subjects": ignore_subs,
+                "ignore_sessions": ignore_sessions,
+            }
+            print(f"Ignoring these sets: {ignore_set}")
+            all_tasks = get_entity_vals(root, "task", **ignore_set)
+            tasks = all_tasks
+
+            for task in tasks:
+                print(f"Analyzing {task} task.")
+                ignore_tasks = [tsk for tsk in all_tasks if tsk != task]
+                ignore_set["ignore_tasks"] = ignore_tasks
+                runs = get_entity_vals(root, "run", **ignore_set)
+                print(f"Found {runs} runs for {task} task.")
+
+                # create path for the dataset
+                bids_path = BIDSPath(
+                    subject=subject,
+                    session=session,
+                    task=task,
+                    # run=run,
+                    datatype=datatype,
+                    # acquisition=acquisition,
+                    suffix=datatype,
+                    root=root,
+                    extension=extension,
+                    check=False,
+                )
+                print(f"Analyzing {bids_path}")
+
+                run_analysis(
+                    bids_path,
+                    reference=reference,
+                    resample_sfreq=sfreq,
+                    deriv_path=deriv_root,
+                    figures_path=figures_path,
+                    plot_heatmap=True,
+                    plot_raw=True,
+                    overwrite=overwrite,
+                    order=order,
+                )
+
+
 if __name__ == "__main__":
+    run_utrecht()
+    exit(1)
     # the root of the BIDS dataset
     WORKSTATION = "home"
 

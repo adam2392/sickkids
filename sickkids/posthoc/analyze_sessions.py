@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from mne_bids import get_entity_vals, BIDSPath
-
 from eztrack.io import read_derivative_npy
 
 
@@ -19,10 +17,6 @@ def load_all_sessions(subject, sessions, deriv_root, deriv_chain):
 
             deriv_list.append(deriv)
     return deriv_list
-
-
-def show_evolution():
-    pass
 
 
 def run_analysis():

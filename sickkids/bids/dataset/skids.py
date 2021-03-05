@@ -174,6 +174,7 @@ def _set_ch_types(raw, subject, session):
             f"C{idx}" for idx in range(50, 57)
         ]
         strips = []
+        ref = "n/a"
         depths = (
             [f"1D{idx}" for idx in range(1, 7)]
             + [f"2D{idx}" for idx in range(1, 7)]
@@ -316,7 +317,7 @@ def add_data_to_participants(subject, bids_root):
         entries = [
             ("age", 9),
             ("sex", "M"),
-            ("hand", "n/a"),
+            ("hand", "R"),
             ("intellectual-function", 77),
             ("verbal-comprehension", 78),
             ("visual-spatial", 77),
@@ -329,6 +330,9 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 3),
             ("months_follow_up", 24),
             ("clinically_annotated_soz", "right-frontal-lobe"),
+            ("clinical_complexity", 4),
+            ("ethnicity", "caucasian"),
+            ("onset_age", 2),
         ]
     if subject == "E2":
         entries = [
@@ -352,7 +356,7 @@ def add_data_to_participants(subject, bids_root):
         entries = [
             ("age", 13),
             ("sex", "F"),
-            ("hand", "n/a"),
+            ("hand", "R"),
             ("intellectual-function", 104),
             ("verbal-comprehension", 92),
             ("visual-spatial", 115),
@@ -365,12 +369,15 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 1),
             ("months_follow_up", 6),
             ("clinically_annotated_soz", "right-parietal-lobe"),
+            ("clinical_complexity", 1),
+            ("ethnicity", "asian"),
+            ("onset_age", 9),
         ]
     elif subject == "E4":
         entries = [
             ("age", 11),
             ("sex", "M"),
-            ("hand", "n/a"),
+            ("hand", "L"),
             ("intellectual-function", 100),
             ("verbal-comprehension", 106),
             ("visual-spatial", 107),
@@ -383,12 +390,15 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 1),
             ("months_follow_up", 14),
             ("clinically_annotated_soz", "right-frontal-lobe"),
+            ("clinical_complexity", 1),
+            ("ethnicity", "caucasian"),
+            ("onset_age", 10),
         ]
     elif subject == "E5":
         entries = [
             ("age", 11),
             ("sex", "M"),
-            ("hand", "n/a"),
+            ("hand", "R"),
             ("intellectual-function", 73),
             ("verbal-comprehension", 64),
             ("visual-spatial", 95),
@@ -401,12 +411,15 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 1),
             ("months_follow_up", 24),
             ("clinically_annotated_soz", "right-frontal-lobe"),
+            ("clinical_complexity", 4),
+            ("ethnicity", "asian"),
+            ("onset_age", 9),
         ]
     elif subject == "E6":
         entries = [
             ("age", 14),
             ("sex", "F"),
-            ("hand", "n/a"),
+            ("hand", "R"),
             ("intellectual-function", 110),
             ("verbal-comprehension", 103),
             ("visual-spatial", 125),
@@ -419,12 +432,15 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 1),
             ("months_follow_up", 7),
             ("clinically_annotated_soz", "right-parietal-lobe"),
+            ("clinical_complexity", 1),
+            ("ethnicity", "caucasian"),
+            ("onset_age", 8),
         ]
     elif subject == "E7":
         entries = [
             ("age", 17),
             ("sex", "M"),
-            ("hand", "n/a"),
+            ("hand", "R"),
             ("intellectual-function", 115),
             ("verbal-comprehension", 118),
             ("visual-spatial", 100),
@@ -437,6 +453,9 @@ def add_data_to_participants(subject, bids_root):
             ("engel_score", 1),
             ("months_follow_up", 3),
             ("clinically_annotated_soz", "left-frontal-temporal-lobe"),
+            ("clinical_complexity", 2),
+            ("ethnicity", "latinx"),
+            ("onset_age", 11),
         ]
 
     description_dict = {
@@ -452,6 +471,9 @@ def add_data_to_participants(subject, bids_root):
         "engel_score": "A clinical classification from 1-4. See literature for better overview.",
         "months_follow_up": "Number of months since surgery that followed up to get surgical outcome.",
         "clinically_annotated_soz": "The region that was clinically isolated to probably contain the SOZ.",
+        "clinical_complexity": "The relative case complexity of the patient.",
+        "ethnicity": "The identified ethnicity of patient.",
+        "onset_age": "The onset of epilepsy age of patient.",
     }
 
     levels_dict = {
@@ -475,8 +497,23 @@ def add_data_to_participants(subject, bids_root):
             "4": "no change",
             "-1": "no surgery, or outcome",
         },
+        "ilae_score": {
+            "1": "seizure free",
+            "2": "",
+            "3": "",
+            "4": "",
+            "5": "",
+            "6": "",
+            "-1": "no surgery, or outcome",
+        },
         "months_follow_up": "",
         "clinically_annotated_soz": "",
+        "clinical_complexity": {
+            "1": "lesional",
+            "2": "temporal",
+            "3": "extratemporal",
+            "4": "multi-focal",
+        },
     }
     units_dict = {
         "intellectual-function": "",
@@ -489,8 +526,11 @@ def add_data_to_participants(subject, bids_root):
         "visual-memory-delay": "",
         "outcome": "",
         "engel_score": "",
+        "ilae_score": "",
         "months_follow_up": "months",
         "clinically_annotated_soz": "",
+        "clinical_complexity": "",
+        "onset_age": "years",
     }
 
     # append subject information

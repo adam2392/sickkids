@@ -16,7 +16,12 @@ from mne_bids import write_raw_bids, read_raw_bids, get_anonymization_daysback
 from mne_bids.path import BIDSPath, _find_matching_sidecar
 from typing import Dict
 
-from sickkids.bids.dataset.skids import _set_ch_types, _set_ch_meta, _get_ch_sizes
+from sickkids.bids.dataset.skids import (
+    _set_ch_types,
+    _set_ch_meta,
+    _get_ch_sizes,
+    add_data_to_participants,
+)
 from sickkids.bids.dataset.tvb_dataset import _set_ch_types_tvb
 from sickkids.bids.io import MatReader
 from sickkids.bids.utils import (
@@ -330,21 +335,22 @@ def convert_sickkids_dataset():
     verbose = True
 
     subject_ids = [
-        # 'E1',
+        "E1",
         # 'E2',
         "E3",
-        # 'E4',
-        # 'E5',
-        # 'E6',
-        # 'E7'
+        "E4",
+        "E5",
+        "E6",
+        "E7",
     ]
 
     participants_json_fname = os.path.join(bids_root, "participants.json")
     participants_tsv_fname = os.path.join(bids_root, "participants.tsv")
 
-    # for subject in subject_ids:
-    #     add_data_to_participants(subject, bids_root)
-    # exit(1)
+    for subject in subject_ids:
+        add_data_to_participants(subject, bids_root)
+
+    exit(1)
     for session in sessions:
         source_folder = source_dir / session
 
@@ -409,5 +415,6 @@ def convert_sickkids_dataset():
 
 
 if __name__ == "__main__":
-    convert_tvb_dataset()
+    convert_sickkids_dataset()
+    # convert_tvb_dataset()
     exit(1)

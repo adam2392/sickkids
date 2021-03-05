@@ -1,4 +1,9 @@
 def compute_hfos(bids_path, deriv_root, reference: str = "monopolar"):
+    """Compute HFOs using mne-hfo from a dataset.
+
+    Derivative output should be named accordingly and inside
+    ``derivatives/hfo/sub-<subject>/ses-<session>/ieeg/<bids_derivative_fname>``.
+    """
     pass
 
 
