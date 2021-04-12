@@ -79,6 +79,10 @@ You need to install ipykernel to expose your conda environment to jupyter notebo
    jupyter lab
 
 
+Jupyter extension for auto-formatting:
+
+    - https://github.com/dnanhkhoa/nb_black
+
 Study Organization
 ==================
 To perform the study, we first took datasets and converted to a standard BIDS-compliant dataset. Our focus was
@@ -102,3 +106,7 @@ Figures and Jupyter Notebooks
 -----------------------------
 To reproduce the main figures of the analyses, we recommend taking a look at the
 jupyter notebooks.
+
+Note: If on Mac, try of upgrade Python3.9:
+
+    export SYSTEM_VERSION_COMPAT=1

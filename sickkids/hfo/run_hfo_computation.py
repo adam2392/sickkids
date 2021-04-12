@@ -48,7 +48,6 @@ def compute_hfos(bids_path, deriv_root, reference: str = "monopolar", filt_band=
     write_annotations(ll_hfo_df, fname=save_fname,
                       intended_for=bids_path,
                       root=None)
-    pass
 
 
 def main():
