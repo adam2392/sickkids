@@ -12,8 +12,8 @@ ipykernel = "*"
 codespell = "*"
 
 [packages]
-mne-bids = ">=0.6"
-mne = ">=0.21"
+mne-bids = ">=0.7"
+mne = ">=0.22"
 vtk = "*"
 pyvista = "*"
 pyqt5 = "*"

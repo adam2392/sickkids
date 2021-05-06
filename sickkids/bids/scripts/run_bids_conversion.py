@@ -53,6 +53,7 @@ def write_edf_to_bids(
     montage=None,
     dataset_name=None,
     source_dir=None,
+        overwrite:bool=False,
 ) -> Dict:
     """Write EDF (.edf) files to BIDS format.
 
@@ -134,7 +135,9 @@ def write_edf_to_bids(
 
     # write to BIDS based on path
     output_bids_path = write_raw_bids(
-        raw, bids_path=bids_path, anonymize=anonymize, overwrite=True, verbose=False
+        raw, bids_path=bids_path,
+        anonymize=anonymize, format='BrainVision',
+        overwrite=overwrite, verbose=False
     )
 
     # add resected channels to description
@@ -324,8 +327,8 @@ def convert_sickkids_dataset():
     modality = "ecog"
     task = "ictal"
     sessions = [
-        "preresection",
-        # 'extraoperative',
+        # "preresection",
+        'extraoperative',
         # 'intraresection',
         # 'postresection'
     ]
@@ -335,11 +338,11 @@ def convert_sickkids_dataset():
     verbose = True
 
     subject_ids = [
-        "E1",
+        # "E1",
         # 'E2',
-        "E3",
-        "E4",
-        "E5",
+        # "E3",
+        # "E4",
+        # "E5",
         "E6",
         "E7",
     ]
@@ -347,10 +350,10 @@ def convert_sickkids_dataset():
     participants_json_fname = os.path.join(bids_root, "participants.json")
     participants_tsv_fname = os.path.join(bids_root, "participants.tsv")
 
-    for subject in subject_ids:
-        add_data_to_participants(subject, bids_root)
-
-    exit(1)
+    # for subject in subject_ids:
+    #     add_data_to_participants(subject, bids_root)
+    #
+    # exit(1)
     for session in sessions:
         source_folder = source_dir / session
 
@@ -361,25 +364,30 @@ def convert_sickkids_dataset():
         # regex pattern for the files is:
         for subject in subject_ids:
             search_str = f"{subject}*.edf"
-            filepaths = source_folder.glob(search_str)
+            search_str = '*.EDF'
+            filepaths = (source_folder / subject).glob(search_str)
 
             # get a list of filepaths for each "task"
             task_filepaths = collections.defaultdict(list)
             for idx, fpath in enumerate(filepaths):
-                subject = fpath.name.split("_")[0]
-                if subject not in subject_ids:
-                    print("wtf?")
-                    continue
+                # subject = fpath.name.split("_")[0]
+                # if subject not in subject_ids:
+                #     print("wtf?")
+                #     continue
+
+                # get task from the filename
                 task = fpath.name.split("_")[1].split(".")[0]
                 task = _extraop_maps(task, subject)
-                task_filepaths[task].append(fpath)
 
+                # task = fpath.name.split('_')[]
+                task_filepaths[task].append(fpath)
+            print(task_filepaths)
             for task, filepaths in task_filepaths.items():
                 for run_id, fpath in enumerate(filepaths):
-                    subject = fpath.name.split("_")[0]
-                    if subject not in subject_ids:
-                        print("wtf?")
-                        continue
+                    # subject = fpath.name.split("_")[0]
+                    # if subject not in subject_ids:
+                    #     print("wtf?")
+                    #     continue
 
                     # get the next available run
                     run_id = run_id + 1
@@ -403,6 +411,7 @@ def convert_sickkids_dataset():
                         line_freq=line_freq,
                         dataset_name="sickkids",
                         source_dir=source_dir,
+                        overwrite=overwrite
                     )
                     bids_fname = output_dict["output_fname"]
 

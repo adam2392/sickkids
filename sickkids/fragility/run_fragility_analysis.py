@@ -162,7 +162,13 @@ def run_analysis(
         perturb_deriv.normalize()
         fig_basename = perturb_deriv_fpath.with_suffix(".pdf").name
 
-        bids_path.update(suffix="electrodes", extension=".tsv")
+        bids_path.update(suffix="channels", extension=".tsv")
+        # elecs_path = BIDSPath(subject=bids_path.subject,
+        #                       session=bids_path.session,
+        #                       suffix='channels', extension='.tsv',
+        #                       datatype=bids_path.datatype,
+        #                       root=bids_path.root)
+        # elecs_path = elecs_path.match()[0]
 
         # read in vertical markers
         # vertical_markers = {}
@@ -305,8 +311,8 @@ def run_utrecht():
 
 
 if __name__ == "__main__":
-    run_utrecht()
-    exit(1)
+    # run_utrecht()
+    # exit(1)
     # the root of the BIDS dataset
     WORKSTATION = "home"
 
@@ -316,7 +322,7 @@ if __name__ == "__main__":
         root = Path("/Users/adam2392/OneDrive - Johns Hopkins/sickkids/")
         # root = Path("/Users/adam2392/Dropbox/resection_tvb/")
         deriv_root = root / "derivatives" / "fb" / "radius1.25"
-        deriv_root = root / "derivatives" / "1000Hz" / "radius1.25"
+        deriv_root = root / "derivatives" / "originalsampling" / "radius1.25"
         figures_path = deriv_root / "figures"
     elif WORKSTATION == "lab":
         root = Path("/home/adam2392/hdd/epilepsy_bids/")
@@ -324,12 +330,12 @@ if __name__ == "__main__":
     # define BIDS entities
     SUBJECTS = [
         # 'id008gc', 'id013pg',
-        # "E1",
-        # 'E3',
-        # 'E4',
+        "E1",
+        'E3',
+        'E4',
         "E5",
-        # "E6",
-        # 'E7'
+        "E6",
+        'E7'
     ]
 
     # pre, Sz, Extraoperative, post
@@ -341,11 +347,12 @@ if __name__ == "__main__":
     session = "postresection"  # only one session
 
     # analysis parameters
-    reference = "common"
+    reference = "average"
     order = 1
-    sfreq = 1000
+    sfreq = None
     overwrite = False
-    SESSIONS = ["extraoperative", "preresection", "intraresection", "postresection"]
+    SESSIONS = ["extraoperative", "preresection",
+                "intraresection", "postresection"]
 
     # get the runs for this subject
     all_subjects = get_entity_vals(root, "subject")
