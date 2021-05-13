@@ -51,16 +51,20 @@ def compute_hfos(bids_path, deriv_root, reference: str = "monopolar", filt_band=
 
 
 def main():
-
     # define hyperparameters
     reference = "monopolar"
     l_freq = 80
     h_freq = 250
 
     # define bids path
-    bids_root = "to/fill/in"
+    bids_root = Path("/home/adam2392/hdd3/sickkids/")
+
+    # define derivatives path nested within raw BIDS dataset
+    derivatives_path = bids_root / "derivatives"
+
     subjects = get_entity_vals(bids_root, 'subject')
-    sessions = get_entity_vals(bids_root, 'session')
+    sessions = ['extraoperative', 'preresection', 'postresection']
+
     subjectID = subjects[0]
     sessionID = sessions[0]
     bids_paths = BIDSPath(subject=subjectID, session=sessionID,
@@ -69,9 +73,6 @@ def main():
                           extension=".vhdr", root=bids_root)
     fpaths = bids_paths.match()
     dataset_path = fpaths[0]
-
-    # define derivatives path
-    derivatives_path = Path(dataset_path) / "derivatives"
 
     # run HFO computation
     compute_hfos(dataset_path, derivatives_path, reference=reference, filt_band=(l_freq, h_freq))
