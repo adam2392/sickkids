@@ -1,15 +1,7 @@
-sickkids Dataset
-----------------
-* Version=v1.0.0
+Neural Fragility of the Intracranial EEG Network Decreases after Surgical Resection of the Epileptogenic Zone
+=============================================================================================================
 
-For analysis of sickkids dataset
-This repo will be used as a light-weight script to be used to convert
-files from the SickKids dataset into the BIDS-compliant layout with
-BrainVision data format (`.vhdr`, `.vmrk`, `.eeg`).
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/ambv/black
-   :alt: Code style: black
+This repository houses code relevant for the publication at:
 
 
 Data Organization
@@ -18,6 +10,10 @@ Data Organization
 Data should be organized in the BIDS-iEEG format:
 
 https://github.com/bids-standard/bids-specification/blob/master/src/04-modality-specific-files/04-intracranial-electroencephalography.md
+
+This repo will be used as a light-weight script to be used to convert
+files from the SickKids dataset into the BIDS-compliant layout with
+BrainVision data format (`.vhdr`, `.vmrk`, `.eeg`). The script is in ``sickkids/bids/scripts/``.
 
 In order to run the script, minimally, the file needs certain BIDS entities defined:
 
@@ -28,7 +24,10 @@ In order to run the script, minimally, the file needs certain BIDS entities defi
 - run (`01` starts)
 - datatype (`eeg`, or `ieeg`)
 
-Additional data components:
+The Hospital For Sick Children Dataset
+--------------------------------------
+
+Additional data components (from sourcedata):
 
 .. code-block::
 
@@ -67,22 +66,6 @@ Then generate a new lock file by running:
     pipenv lock --pre
 
 
-Setup Jupyter Kernel To Test
-============================
-
-You need to install ipykernel to expose your conda environment to jupyter notebooks.
-
-.. code-block::
-
-   pipenv run python -m ipykernel install --name sickkids --user
-   # now you can run jupyter lab and select a kernel
-   jupyter lab
-
-
-Jupyter extension for auto-formatting:
-
-    - https://github.com/dnanhkhoa/nb_black
-
 Study Organization
 ==================
 To perform the study, we first took datasets and converted to a standard BIDS-compliant dataset. Our focus was
@@ -105,8 +88,21 @@ Finally, `posthoc/` contains scripts to help generate statistical and quantitati
 Figures and Jupyter Notebooks
 -----------------------------
 To reproduce the main figures of the analyses, we recommend taking a look at the
-jupyter notebooks.
+jupyter notebooks. Namely, inside ``notebooks/publication``.
 
-Note: If on Mac, try of upgrade Python3.9:
 
-    export SYSTEM_VERSION_COMPAT=1
+Setup Jupyter Kernel To Test
+============================
+
+You need to install ipykernel to expose your conda environment to jupyter notebooks.
+
+.. code-block::
+
+   pipenv run python -m ipykernel install --name sickkids --user
+   # now you can run jupyter lab and select a kernel
+   jupyter lab
+
+
+Jupyter extension for auto-formatting:
+
+    - https://github.com/dnanhkhoa/nb_black
