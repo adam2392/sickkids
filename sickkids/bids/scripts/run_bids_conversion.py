@@ -2,6 +2,7 @@ import collections
 import os
 import random
 from pathlib import Path
+from typing import Union
 
 import mne
 import numpy as np
@@ -15,7 +16,8 @@ from mne.io import read_raw_edf
 from mne_bids import write_raw_bids, read_raw_bids, get_anonymization_daysback
 from mne_bids.path import BIDSPath, _find_matching_sidecar
 from typing import Dict
-
+import sys
+sys.path.append('./')
 from sickkids.bids.dataset.skids import (
     _set_ch_types,
     _set_ch_meta,
@@ -46,9 +48,9 @@ def _read_mat_data_file(fpath, subject):
 
 
 def write_edf_to_bids(
-    edf_fpath: [str, Path],
+    edf_fpath: Union[str, Path],
     bids_kwargs: Dict,
-    bids_root: [str, Path],
+    bids_root: Union[str, Path],
     line_freq: int = 60,
     montage=None,
     dataset_name=None,
@@ -116,10 +118,10 @@ def write_edf_to_bids(
         raw = _set_ch_types_tvb(raw, subject)
 
     # make fake np.nan montage
-    if montage is None:
-        ch_pos = {ch_name: [np.nan] * 3 for ch_name in raw.ch_names}
-        montage = make_dig_montage(ch_pos=ch_pos, coord_frame="mri")
-    raw.set_montage(montage, on_missing="ignore")
+    # if montage is None:
+    #     ch_pos = {ch_name: [np.nan] * 3 for ch_name in raw.ch_names}
+    #     montage = make_dig_montage(ch_pos=ch_pos, coord_frame="mri")
+    # raw.set_montage(montage, on_missing="ignore")
 
     # channel text scrub
     raw = _channel_text_scrub(raw)
@@ -163,7 +165,8 @@ def write_edf_to_bids(
             chs = ch_mapping[group]
             for ch in chs:
                 _update_sidecar_tsv_byname(channels_tsv_fname, ch, "group", group)
-                _update_sidecar_tsv_byname(electrodes_tsv_fname, ch, "group", group)
+                if electrodes_tsv_fname is not None:
+                    _update_sidecar_tsv_byname(electrodes_tsv_fname, ch, "group", group)
 
         # update reference channel
         reference_ch = ch_mapping["reference"]
@@ -326,9 +329,10 @@ def convert_sickkids_dataset():
     # define BIDS identifiers
     modality = "ecog"
     task = "ictal"
+    task = 'pre'
     sessions = [
-        # "preresection",
-        'extraoperative',
+        "preresection",
+        # 'extraoperative',
         # 'intraresection',
         # 'postresection'
     ]
@@ -344,12 +348,13 @@ def convert_sickkids_dataset():
         # "E4",
         # "E5",
         "E6",
-        "E7",
+        # "E7",
     ]
 
     participants_json_fname = os.path.join(bids_root, "participants.json")
     participants_tsv_fname = os.path.join(bids_root, "participants.tsv")
 
+    bids_root = bids_root / 'derivatives'
     # for subject in subject_ids:
     #     add_data_to_participants(subject, bids_root)
     #
@@ -364,16 +369,20 @@ def convert_sickkids_dataset():
         # regex pattern for the files is:
         for subject in subject_ids:
             search_str = f"{subject}*.edf"
-            search_str = '*.EDF'
+            # search_str = '*.EDF'
             filepaths = (source_folder / subject).glob(search_str)
+            filepaths = (source_folder).glob(search_str)
 
             # get a list of filepaths for each "task"
             task_filepaths = collections.defaultdict(list)
+            print(source_folder / subject)
+            print(search_str)
+            print(task_filepaths)
             for idx, fpath in enumerate(filepaths):
-                # subject = fpath.name.split("_")[0]
-                # if subject not in subject_ids:
-                #     print("wtf?")
-                #     continue
+                subject = fpath.name.split("_")[0]
+                if subject not in subject_ids:
+                    print("wtf?")
+                    continue
 
                 # get task from the filename
                 task = fpath.name.split("_")[1].split(".")[0]
@@ -423,7 +432,63 @@ def convert_sickkids_dataset():
                     raw = read_raw_bids(bids_path)
 
 
+def convert_hsc_interictal_dataset():
+    #  bids root to write BIDS data to
+    bids_root = Path("/Users/adam2392/OneDrive - Johns Hopkins/sickkids_extraop/")
+    source_dir = bids_root / "sourcedata"
+
+    # define BIDS identifiers
+    task = "interictal"
+    session = 'extraoperative'
+    datatype = "ieeg"
+    line_freq = 60
+    extension = '.edf'
+    overwrite = True
+    verbose = True
+
+    source_folder = source_dir
+
+    subject_ids = [f.name for f in source_dir.glob('*') if f.is_dir()]
+
+    # regex pattern for the files is:
+    for subject in subject_ids:
+        search_str = '*.EDF'
+        filepaths = (source_folder / subject).rglob(search_str)
+
+        for run_id, fpath in enumerate(filepaths):
+            # get the next available run
+            run_id = run_id + 1
+
+            bids_kwargs = {
+                "subject": subject,
+                "session": session,
+                "task": task,
+                'acquisition': None,
+                "run": run_id,
+                "datatype": datatype,
+                "suffix": datatype,
+                'extension': extension
+            }
+            print(bids_kwargs)
+
+            # run main bids conversion
+            output_dict = write_edf_to_bids(
+                edf_fpath=fpath,
+                bids_kwargs=bids_kwargs,
+                bids_root=bids_root,
+                line_freq=line_freq,
+                dataset_name="sickkids interictal extraop",
+                source_dir=source_dir,
+                overwrite=overwrite
+            )
+            bids_fname = output_dict["output_fname"]
+
+            # append scans original filenames
+            append_original_fname_to_scans(fpath.name, bids_root, bids_fname)
+
+
 if __name__ == "__main__":
     convert_sickkids_dataset()
+    # convert_hsc_interictal_dataset()
     # convert_tvb_dataset()
     exit(1)
